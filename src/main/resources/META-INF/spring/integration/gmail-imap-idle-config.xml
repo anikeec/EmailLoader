@@ -48,7 +48,7 @@
 	</util:properties>
 	
 	<bean id="searchTermStrategy"
-        class="com.apu.mailreceiver.email.AcceptAllSearchTermStrategy"/>
+        class="com.apu.emailloader.email.AcceptAllSearchTermStrategy"/>
 	
 	<!-- 
 	<int:channel id="secondEmailChannel">
@@ -76,7 +76,7 @@
 	
 	<int:service-activator id="emailServiceActivator" input-channel="receiveEmailChannel"
             	output-channel = "outputFileChannel" method="handle">
-    	<bean class="com.apu.mailreceiver.email.EmailService"/>
+    	<bean class="com.apu.emailloader.email.EmailService"/>
 	</int:service-activator>
 	
 	<int:channel id="outputFileChannel"/>

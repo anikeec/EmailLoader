@@ -1,7 +1,7 @@
 package com.apu.emailloader.email;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.file.FileHeaders;
 import org.springframework.integration.support.MessageBuilder;
@@ -25,7 +25,7 @@ import java.util.Properties;
 
 public class EmailService {
     
-    private static final Log LOGGER = LogFactory.getLog(EmailService.class);
+    private static Logger LOGGER = LogManager.getLogger(EmailService.class.getName());
     
     private void copyEmailToAnotherMailbox(MimeMessage eMailMessage) {
         try {
