@@ -100,6 +100,11 @@ public class LoggingOutputStream extends OutputStream {
     public void flush() {
         if (count == 0) {
             return;
+        } else if(count==2) {
+            if((buf[0] == 0x0D) && (buf[1] == 0x0A)) {
+                count=0;
+                return;
+            }
         }
         final byte[] bytes = new byte[count];
         System.arraycopy(buf, 0, bytes, 0, count);
