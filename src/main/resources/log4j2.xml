@@ -15,14 +15,14 @@
     </Properties>
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5p [%t][%c] %m%n" />
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5p [%c] %m%n" />
 		</Console>
 		<File name="FileLogger" fileName="${logfilename}" immediateFlush="true">
-	           <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5p [%c] %m%n" />
+	        <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5p [%c] %m%n" />
 	    </File>
 	    <Async name="ASYNC">
-	      <AppenderRef ref="Console"/>
-	      <AppenderRef ref="FileLogger"/>
+			<AppenderRef ref="Console"/>
+			<AppenderRef ref="FileLogger"/>
 	    </Async>
 	</Appenders>
 	<Loggers>	    
@@ -31,18 +31,7 @@
         </Logger>	    
 		<Logger name="org.springframework.integration" level="all" additivity="false">
 	        <AppenderRef ref="ASYNC" />
-	    </Logger>
-	    <!-- 
-	    <Logger name="com.apu.emailloader" level="all" additivity="false">
-            <AppenderRef ref="ASYNC" />
-        </Logger>
-	    <Logger name="javax.mail" level="all" additivity="false" >
-            <AppenderRef ref="ASYNC" />
-        </Logger>
-        <Logger name="com.sun.mail" level="all" additivity="false" >
-            <AppenderRef ref="ASYNC" />
-        </Logger>
-        -->	    
+	    </Logger>    
         <Logger name="org.springframework" level="warn" additivity="false">
             <AppenderRef ref="ASYNC" />
         </Logger>
