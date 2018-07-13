@@ -113,7 +113,7 @@ public class EmailService {
                                                     .build();
                     messages.add(message);
                 }
-            }        
+            }  
         } catch (MessagingException e) {
 			throw new IllegalStateException(e);
 		} catch (IOException e) {
@@ -131,9 +131,10 @@ public class EmailService {
         
         String directoryName = StringUtils.dateFormat(emailSentDate) + " - " +
 		        					emailFrom +	" - " + EmailUtils.checkEmailSubject(emailSubject);
+        directoryName = EmailUtils.checkEmailDirectory(directoryName).trim();
         
         //create new directory
-        File directory = new File(EmailUtils.checkEmailDirectory(directoryName));
+        File directory = new File(directoryName);
         
         if(multipart == null) {
         	fragments.add(new EmailFragment(directory, "message.txt", message.getContent()));
