@@ -10,7 +10,7 @@ import org.springframework.integration.config.EnableIntegrationManagement;
 
 import com.apu.emailloader.utils.LoggingOutputStream;
 
-@EnableIntegrationManagement(defaultLoggingEnabled = "true")
+//@EnableIntegrationManagement(defaultLoggingEnabled = "true")
 public class InboundImapIdleAdapterTestApp {
     
     private static Logger logger = Logger.getLogger(InboundImapIdleAdapterTestApp.class.getName());
