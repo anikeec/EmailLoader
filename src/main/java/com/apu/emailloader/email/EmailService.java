@@ -11,7 +11,6 @@ import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeUtility;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -19,9 +18,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -161,7 +158,7 @@ public class EmailService {
 
     			content = emailBodypartToFile(bodyPart);
     			
-    			fragments.add(new EmailFragment(directory, this.chechFileNameCoding(bodyPart.getFileName()), content));
+    			fragments.add(new EmailFragment(directory, EmailUtils.chechFileNameCoding(bodyPart.getFileName()), content));
             } else {
 //                Log mail contents
             	content = bodyPart.getContent();
@@ -170,7 +167,7 @@ public class EmailService {
     				extractDetailsAndDownload(message, innerMultipart, null, fragments);
     			} else {
     				fileName = bodyPart.getFileName();
-    				fileName = this.chechFileNameCoding(fileName); 
+    				fileName = EmailUtils.chechFileNameCoding(fileName); 
     				if(fileName == null) {
 	    				if (bodyPart instanceof MimeBodyPart) {
 	    					
@@ -205,21 +202,9 @@ public class EmailService {
         }
     }
     
-    private String chechFileNameCoding(String fileName) throws UnsupportedEncodingException {
-        if((fileName != null) && (fileName.contains("UTF-8"))) {
-            String substrCoding = "=?UTF-8?B?";
-            String substring = fileName.substring(substrCoding.length());
-            byte[] decoded = Base64.getMimeDecoder().decode(substring);
-            fileName = new String(decoded, "UTF-8");
-            //newFileName = MimeUtility.encodeText(fileName, "UTF-8", "B");
-            //newFileName = MimeUtility.encodeText(fileName, "UTF-8", "Q");
-        }
-        return fileName;
-    }
-    
     private File emailBodypartToFile(BodyPart bodyPart) throws MessagingException, IOException {
     	String fileName = bodyPart.getFileName();
-    	fileName = this.chechFileNameCoding(fileName);    	
+    	fileName = EmailUtils.chechFileNameCoding(fileName);    	
         File file = new File(fileName);
 		InputStream in = ((MimeBodyPart) bodyPart).getInputStream();
 		BufferedOutputStream out = null;
