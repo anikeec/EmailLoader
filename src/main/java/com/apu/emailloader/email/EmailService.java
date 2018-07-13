@@ -114,6 +114,7 @@ public class EmailService {
                     messages.add(message);
                 }
             }  
+            folder.close(true);
         } catch (MessagingException e) {
 			throw new IllegalStateException(e);
 		} catch (IOException e) {
