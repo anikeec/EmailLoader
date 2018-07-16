@@ -2,10 +2,7 @@ package com.apu.emailloader.email;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.integration.annotation.ServiceActivator;
-import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.file.FileHeaders;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
@@ -29,10 +26,6 @@ import java.util.Properties;
 
 @Component
 public class EmailService {
-    
-//    @Autowired
-//    @Qualifier("outputFileChannel")
-//    DirectChannel outputChannel;
     
     private static Logger LOGGER = LogManager.getLogger(EmailService.class.getName());
     
@@ -80,34 +73,13 @@ public class EmailService {
     public List<Message<?>> handleMail(MimeMessage eMailMessage) {
 
     	List<EmailFragment> emailFragments = new ArrayList<>();
-    	
-//        Folder folder = eMailMessage.getFolder();
         
         final List<Message<?>> messages;
         
         try {
-        
-//            folder.open(Folder.READ_WRITE);			
-//
-//            int messagesAmount = folder.getMessageCount();
-//            LOGGER.info("Messages amount: " + messagesAmount);
-//            javax.mail.Message[] emailMessages;
-//            if(messagesAmount > 5) {
-//                emailMessages = folder.getMessages(1, 5);
-//            } else {
-//                emailMessages = folder.getMessages();
-//            }
-//
-//            FetchProfile contentsProfile = new FetchProfile();
-//            contentsProfile.add(FetchProfile.Item.ENVELOPE);
-//            contentsProfile.add(FetchProfile.Item.CONTENT_INFO);
-//            contentsProfile.add(FetchProfile.Item.FLAGS);     
-//            folder.fetch(emailMessages, contentsProfile);
 
             messages = new ArrayList<Message<?>>();
             
-//            for (int i = 0; i < emailMessages.length; i++) {	
-//                MimeMessage mimeMessage = (MimeMessage) emailMessages[i];	
                 MimeMessage mimeMessage = eMailMessage;
                 //mimeMessage.setFlag(Flags.Flag.DELETED, true);
                 LOGGER.info("SUBJECT: " + mimeMessage.getSubject());
@@ -123,22 +95,13 @@ public class EmailService {
                 } else {
 
                 }
-                List<Message<?>> listMessages = new ArrayList<>();
                 for (EmailFragment emailFragment : emailFragments) {
                     Message<?> message = MessageBuilder.withPayload(emailFragment.getData())
                                                     .setHeader(FileHeaders.FILENAME, emailFragment.getFilename())
                                                     .setHeader("directory", emailFragment.getDirectory())
                                                     .build();
-                    messages.add(message);
-//                    listMessages.add(message);
-//                    outputChannel = applicationContext.getBean("outputFileChannel", DirectChannel.class);
-                    
+                    messages.add(message);                    
                 }                
-//                for(Message<?> mess:listMessages) {
-//                    outputChannel.send(mess);
-//                }                
-//            }  
-//            folder.close(true);
         } catch (MessagingException e) {
 			throw new IllegalStateException(e);
 		} catch (IOException e) {
