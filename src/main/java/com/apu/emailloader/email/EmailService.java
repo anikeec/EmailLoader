@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -101,6 +102,7 @@ public class EmailService {
             Object content = eMailMessage.getContent();
             Multipart multipart = null;
             String lastMessageIdentify = null;
+            emailFragments.add(fillHeaderFile(eMailMessage));
             if (content instanceof Multipart) {
                 multipart = (Multipart) content;
                 lastMessageIdentify = extractDetailsAndDownload(eMailMessage, multipart, mimeMessage, emailFragments);
@@ -108,13 +110,13 @@ public class EmailService {
                 lastMessageIdentify = extractDetailsAndDownload(eMailMessage, multipart, mimeMessage, emailFragments);
             } else {
 
-            }
+            }            
             for (EmailFragment emailFragment : emailFragments) {
                 Message<?> message = MessageBuilder.withPayload(emailFragment.getData())
                         .setHeader(FileHeaders.FILENAME, emailFragment.getFilename())
                         .setHeader("directory", emailFragment.getDirectory()).build();
                 messages.add(message);
-            } 
+            }             
             if(lastMessageIdentify != null) {      
                 properties.setProperty(Settings.LAST_MESSAGE_ID, eMailMessage.getMessageID());
                 properties.setProperty(Settings.LAST_MESSAGE_DATE_TIME, lastMessageIdentify);
@@ -128,20 +130,39 @@ public class EmailService {
 
         return messages;
     }
+    
+    private EmailFragment fillHeaderFile(MimeMessage eMailMessage) throws MessagingException, UnsupportedEncodingException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("From: " + eMailMessage.getHeader("From", null) + "\n");
+        try {
+        sb.append("Subject: " + EmailUtils.chechFileNameCoding(eMailMessage.getHeader("Subject", null)) + "\n");
+        } catch(IOException e) {}
+        sb.append("Sent date: " + StringUtils.dateFormat(eMailMessage.getSentDate()) + "\n");
+        sb.append("Date: " + eMailMessage.getHeader("Date", null) + "\n");        
+        sb.append("To: " + eMailMessage.getHeader("To", null) + "\n");        
+        sb.append("Cc: " + eMailMessage.getHeader("Cc", null) + "\n");        
+        sb.append("Bcc: " + eMailMessage.getHeader("Bcc", null) + "\n"); 
+        return new EmailFragment(new File(getDirectoryNameFromMessage(eMailMessage)), 
+                                "Header.txt", (Object)sb.toString());
+    }
+    
+    public static String getDirectoryNameFromMessage(javax.mail.Message message) throws MessagingException {
+        String emailSubject = message.getSubject();
+        String emailFrom = ((InternetAddress)(message.getFrom()[0])).getAddress();
+        Date emailSentDate = message.getSentDate(); 
+        String directoryName = StringUtils.dateFormat(emailSentDate) + " - " +
+                emailFrom + " - " + EmailUtils.checkEmailSubject(emailSubject);
+                directoryName = EmailUtils.checkEmailDirectory(directoryName).trim();
+        return directoryName;
+    }
 
     private String extractDetailsAndDownload(javax.mail.Message message, Multipart multipart, MimeMessage mimeMessage, List<EmailFragment> fragments) throws MessagingException, IOException {
 
         String retValue = "";
         
-    	String emailSubject = message.getSubject();
-        String emailFrom = ((InternetAddress)(message.getFrom()[0])).getAddress();
-        Date emailSentDate = message.getSentDate();        
+        retValue = StringUtils.dateFormat(message.getSentDate());
         
-        retValue = StringUtils.dateFormat(emailSentDate);
-        
-        String directoryName = StringUtils.dateFormat(emailSentDate) + " - " +
-		        					emailFrom +	" - " + EmailUtils.checkEmailSubject(emailSubject);
-        directoryName = EmailUtils.checkEmailDirectory(directoryName).trim();
+        String directoryName = getDirectoryNameFromMessage(message);
         
         //create new directory
         File directory = new File(directoryName);
