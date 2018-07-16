@@ -81,33 +81,34 @@ public class EmailService {
 
     	List<EmailFragment> emailFragments = new ArrayList<>();
     	
-        Folder folder = eMailMessage.getFolder();
+//        Folder folder = eMailMessage.getFolder();
         
         final List<Message<?>> messages;
         
         try {
         
-            folder.open(Folder.READ_WRITE);			
-
-            int messagesAmount = folder.getMessageCount();
-            LOGGER.info("Messages amount: " + messagesAmount);
-            javax.mail.Message[] emailMessages;
-            if(messagesAmount > 5) {
-                emailMessages = folder.getMessages(1, 5);
-            } else {
-                emailMessages = folder.getMessages();
-            }
-
-            FetchProfile contentsProfile = new FetchProfile();
-            contentsProfile.add(FetchProfile.Item.ENVELOPE);
-            contentsProfile.add(FetchProfile.Item.CONTENT_INFO);
-            contentsProfile.add(FetchProfile.Item.FLAGS);     
-            folder.fetch(emailMessages, contentsProfile);
+//            folder.open(Folder.READ_WRITE);			
+//
+//            int messagesAmount = folder.getMessageCount();
+//            LOGGER.info("Messages amount: " + messagesAmount);
+//            javax.mail.Message[] emailMessages;
+//            if(messagesAmount > 5) {
+//                emailMessages = folder.getMessages(1, 5);
+//            } else {
+//                emailMessages = folder.getMessages();
+//            }
+//
+//            FetchProfile contentsProfile = new FetchProfile();
+//            contentsProfile.add(FetchProfile.Item.ENVELOPE);
+//            contentsProfile.add(FetchProfile.Item.CONTENT_INFO);
+//            contentsProfile.add(FetchProfile.Item.FLAGS);     
+//            folder.fetch(emailMessages, contentsProfile);
 
             messages = new ArrayList<Message<?>>();
             
-            for (int i = 0; i < emailMessages.length; i++) {	
-                MimeMessage mimeMessage = (MimeMessage) emailMessages[i];	
+//            for (int i = 0; i < emailMessages.length; i++) {	
+//                MimeMessage mimeMessage = (MimeMessage) emailMessages[i];	
+                MimeMessage mimeMessage = eMailMessage;
                 //mimeMessage.setFlag(Flags.Flag.DELETED, true);
                 LOGGER.info("SUBJECT: " + mimeMessage.getSubject());
                 Address senderAddress = mimeMessage.getFrom()[0];
@@ -136,8 +137,8 @@ public class EmailService {
 //                for(Message<?> mess:listMessages) {
 //                    outputChannel.send(mess);
 //                }                
-            }  
-            folder.close(true);
+//            }  
+//            folder.close(true);
         } catch (MessagingException e) {
 			throw new IllegalStateException(e);
 		} catch (IOException e) {
