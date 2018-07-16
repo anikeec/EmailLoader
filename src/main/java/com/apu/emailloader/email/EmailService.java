@@ -8,6 +8,8 @@ import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 
+import com.apu.emailloader.utils.Settings;
+
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
@@ -15,7 +17,6 @@ import javax.mail.internet.MimeMessage;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,10 +36,7 @@ public class EmailService {
             String subjectEdited = StringUtils.dateFormat(emailSentDate) + " - " + eMailMessage.getSubject();
             eMailMessage.setSubject(subjectEdited);
             
-            FileInputStream fis;
-            Properties secondEmailProps = new Properties();
-            fis = new FileInputStream("src/main/resources/email.properties");
-            secondEmailProps.load(fis);
+            Properties secondEmailProps = Settings.loadPropertiesFromFile();
 
             String emailServer = secondEmailProps.getProperty("sec.email.server");
             String emailHost = secondEmailProps.getProperty("sec.email.host");
@@ -74,11 +72,26 @@ public class EmailService {
 
     	List<EmailFragment> emailFragments = new ArrayList<>();
         
-        final List<Message<?>> messages;
+        final List<Message<?>> messages = new ArrayList<Message<?>>();       
         
         try {
-
-            messages = new ArrayList<Message<?>>();
+            Properties properties = Settings.loadPropertiesFromFile();            
+            String lastMessageId = properties.getProperty(Settings.LAST_MESSAGE_ID);            
+            Date lastMessageDateTime = null;
+            String lastMessageDateTimeStr = null;
+            if((lastMessageDateTimeStr = properties.getProperty(Settings.LAST_MESSAGE_DATE_TIME)) != null) {
+                lastMessageDateTime = StringUtils.dateFormat(lastMessageDateTimeStr);
+            }
+            
+            //check for last message Id and dateTime
+            if(lastMessageId.equals(eMailMessage.getMessageID())) {
+                return null;
+            }
+            if(lastMessageDateTime != null) {
+                if(eMailMessage.getSentDate().compareTo(lastMessageDateTime) < 0) {
+                    return null;
+                }
+            }            
             
             MimeMessage mimeMessage = eMailMessage;
             // mimeMessage.setFlag(Flags.Flag.DELETED, true);
@@ -87,11 +100,12 @@ public class EmailService {
             LOGGER.info("SENDER " + senderAddress.toString());
             Object content = eMailMessage.getContent();
             Multipart multipart = null;
+            String lastMessageIdentify = null;
             if (content instanceof Multipart) {
                 multipart = (Multipart) content;
-                extractDetailsAndDownload(eMailMessage, multipart, mimeMessage, emailFragments);
+                lastMessageIdentify = extractDetailsAndDownload(eMailMessage, multipart, mimeMessage, emailFragments);
             } else if (content instanceof String) {
-                extractDetailsAndDownload(eMailMessage, multipart, mimeMessage, emailFragments);
+                lastMessageIdentify = extractDetailsAndDownload(eMailMessage, multipart, mimeMessage, emailFragments);
             } else {
 
             }
@@ -100,7 +114,12 @@ public class EmailService {
                         .setHeader(FileHeaders.FILENAME, emailFragment.getFilename())
                         .setHeader("directory", emailFragment.getDirectory()).build();
                 messages.add(message);
-            }                
+            } 
+            if(lastMessageIdentify != null) {      
+                properties.setProperty(Settings.LAST_MESSAGE_ID, eMailMessage.getMessageID());
+                properties.setProperty(Settings.LAST_MESSAGE_DATE_TIME, lastMessageIdentify);
+                Settings.savePropertiesToFile(properties);
+            }
         } catch (MessagingException e) {
 			throw new IllegalStateException(e);
 		} catch (IOException e) {
@@ -110,11 +129,15 @@ public class EmailService {
         return messages;
     }
 
-    private void extractDetailsAndDownload(javax.mail.Message message, Multipart multipart, MimeMessage mimeMessage, List<EmailFragment> fragments) throws MessagingException, IOException {
+    private String extractDetailsAndDownload(javax.mail.Message message, Multipart multipart, MimeMessage mimeMessage, List<EmailFragment> fragments) throws MessagingException, IOException {
 
+        String retValue = "";
+        
     	String emailSubject = message.getSubject();
         String emailFrom = ((InternetAddress)(message.getFrom()[0])).getAddress();
         Date emailSentDate = message.getSentDate();        
+        
+        retValue = StringUtils.dateFormat(emailSentDate);
         
         String directoryName = StringUtils.dateFormat(emailSentDate) + " - " +
 		        					emailFrom +	" - " + EmailUtils.checkEmailSubject(emailSubject);
@@ -125,7 +148,7 @@ public class EmailService {
         
         if(multipart == null) {
         	fragments.add(new EmailFragment(directory, "message.txt", message.getContent()));
-        	return;
+        	return retValue;
         }
         
         LOGGER.info("Mail has " + multipart.getCount() + " elements.");
@@ -188,6 +211,7 @@ public class EmailService {
     			}  	 
             }         
         }
+        return retValue;
     }
     
     private File emailBodypartToFile(BodyPart bodyPart) throws MessagingException, IOException {

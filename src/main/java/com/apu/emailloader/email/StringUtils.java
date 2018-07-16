@@ -1,5 +1,6 @@
 package com.apu.emailloader.email;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -30,6 +31,15 @@ public class StringUtils {
     public static String dateFormat(Date date) {        
     	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd-HH.mm.ss");
         return dateFormat.format(date);
+    }
+    
+    public static Date dateFormat(String date) {        
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd-HH.mm.ss");
+        try {
+            return dateFormat.parse(date);
+        } catch (ParseException e) {
+            return new Date(0);
+        }
     }
 	
 }
