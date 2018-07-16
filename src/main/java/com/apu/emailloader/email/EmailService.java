@@ -80,28 +80,27 @@ public class EmailService {
 
             messages = new ArrayList<Message<?>>();
             
-                MimeMessage mimeMessage = eMailMessage;
-                //mimeMessage.setFlag(Flags.Flag.DELETED, true);
-                LOGGER.info("SUBJECT: " + mimeMessage.getSubject());
-                Address senderAddress = mimeMessage.getFrom()[0];
-                LOGGER.info("SENDER " + senderAddress.toString());
-                Object content = eMailMessage.getContent();
-                Multipart multipart = null;
-                if(content instanceof Multipart) {
-                    multipart = (Multipart) content;
-                    extractDetailsAndDownload(eMailMessage, multipart, mimeMessage, emailFragments);
-                } else if(content instanceof String) {
-                    extractDetailsAndDownload(eMailMessage, multipart, mimeMessage, emailFragments);
-                } else {
+            MimeMessage mimeMessage = eMailMessage;
+            // mimeMessage.setFlag(Flags.Flag.DELETED, true);
+            LOGGER.info("SUBJECT: " + mimeMessage.getSubject());
+            Address senderAddress = mimeMessage.getFrom()[0];
+            LOGGER.info("SENDER " + senderAddress.toString());
+            Object content = eMailMessage.getContent();
+            Multipart multipart = null;
+            if (content instanceof Multipart) {
+                multipart = (Multipart) content;
+                extractDetailsAndDownload(eMailMessage, multipart, mimeMessage, emailFragments);
+            } else if (content instanceof String) {
+                extractDetailsAndDownload(eMailMessage, multipart, mimeMessage, emailFragments);
+            } else {
 
-                }
-                for (EmailFragment emailFragment : emailFragments) {
-                    Message<?> message = MessageBuilder.withPayload(emailFragment.getData())
-                                                    .setHeader(FileHeaders.FILENAME, emailFragment.getFilename())
-                                                    .setHeader("directory", emailFragment.getDirectory())
-                                                    .build();
-                    messages.add(message);                    
-                }                
+            }
+            for (EmailFragment emailFragment : emailFragments) {
+                Message<?> message = MessageBuilder.withPayload(emailFragment.getData())
+                        .setHeader(FileHeaders.FILENAME, emailFragment.getFilename())
+                        .setHeader("directory", emailFragment.getDirectory()).build();
+                messages.add(message);
+            }                
         } catch (MessagingException e) {
 			throw new IllegalStateException(e);
 		} catch (IOException e) {
