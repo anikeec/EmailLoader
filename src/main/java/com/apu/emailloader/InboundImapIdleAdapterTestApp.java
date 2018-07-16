@@ -4,12 +4,18 @@ import java.io.PrintStream;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.config.EnableIntegrationManagement;
 
 import com.apu.emailloader.utils.LoggingOutputStream;
 
+//@Configuration
+//@ComponentScan(basePackages = {
+//    "com.apu.emailoader"
+//})
 //@EnableIntegrationManagement(defaultLoggingEnabled = "true")
 public class InboundImapIdleAdapterTestApp {
     
