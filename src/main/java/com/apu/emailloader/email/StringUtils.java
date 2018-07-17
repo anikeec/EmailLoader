@@ -21,6 +21,17 @@ public class StringUtils {
         return result.toString();
     }
     
+    public static String removePunct(String str, String pattern) {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (pattern.indexOf(c) < 0) {
+                result.append(c);
+            }
+        }
+        return result.toString();
+    }
+    
     public static String lengthRestriction(String str, int maxLength) {
         if(str.length() >= maxLength) {
             str = str.substring(0, maxLength);
