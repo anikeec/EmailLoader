@@ -133,15 +133,28 @@ public class EmailService {
     
     private EmailFragment fillHeaderFile(MimeMessage eMailMessage) throws MessagingException, UnsupportedEncodingException {
         StringBuilder sb = new StringBuilder();
-        sb.append("From: " + eMailMessage.getHeader("From", null) + "\n");
         try {
-        sb.append("Subject: " + EmailUtils.chechFileNameCoding(eMailMessage.getHeader("Subject", null)) + "\n");
+            sb.append("From: ").append(EmailUtils
+                    .getDecodedStr(eMailMessage.getHeader("From", null) + "\n"));        
+            sb.append("Subject: ").append(EmailUtils
+                    .chechFileNameCoding(eMailMessage.getHeader("Subject", null)))
+                    .append("\n");
         } catch(IOException e) {}
-        sb.append("Sent date: " + StringUtils.dateFormat(eMailMessage.getSentDate()) + "\n");
-        sb.append("Date: " + eMailMessage.getHeader("Date", null) + "\n");        
-        sb.append("To: " + eMailMessage.getHeader("To", null) + "\n");        
-        sb.append("Cc: " + eMailMessage.getHeader("Cc", null) + "\n");        
-        sb.append("Bcc: " + eMailMessage.getHeader("Bcc", null) + "\n"); 
+        sb.append("Sent date: ")
+                .append(StringUtils.dateFormat(eMailMessage.getSentDate()))
+                .append("\n");
+        sb.append("Date: ")
+                .append(eMailMessage.getHeader("Date", null))
+                .append("\n");        
+        sb.append("To: ")
+                .append(eMailMessage.getHeader("To", null))
+                .append("\n");        
+        sb.append("Cc: ")
+                .append(eMailMessage.getHeader("Cc", null))
+                .append("\n");        
+        sb.append("Bcc: ")
+                .append(eMailMessage.getHeader("Bcc", null))
+                .append("\n"); 
         return new EmailFragment(new File(getDirectoryNameFromMessage(eMailMessage)), 
                                 "Header.txt", (Object)sb.toString());
     }
