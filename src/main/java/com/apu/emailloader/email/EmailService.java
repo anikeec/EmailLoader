@@ -16,15 +16,21 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
+import javax.mail.internet.MimeUtility;
+import org.springframework.mail.javamail.MimeMessageHelper;
 
 @Component
 public class EmailService {
@@ -63,7 +69,22 @@ public class EmailService {
     }
     
     @ServiceActivator
-    public List<Message<?>> handle(javax.mail.Message eMailMessage) {
+    public List<Message<?>> handle(javax.mail.Message eMailMessage) throws MessagingException {
+        Address[] addresses = eMailMessage.getFrom();
+        String subj = eMailMessage.getSubject();
+        String str;
+        try {
+            InputStream is = eMailMessage.getInputStream();
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+            StringBuilder sb = new StringBuilder();
+            while((str = rd.readLine()) != null) {
+                sb.append(str);
+            }
+            str = sb.toString();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         List<Message<?>> list = this.handleMail((MimeMessage)eMailMessage);
         //this.copyEmailToAnotherMailbox((MimeMessage)eMailMessage);
     	return list;
@@ -134,10 +155,15 @@ public class EmailService {
     private EmailFragment fillHeaderFile(MimeMessage eMailMessage) throws MessagingException, UnsupportedEncodingException {
         StringBuilder sb = new StringBuilder();
         try {
+//            MimeMessageHelper helper = new MimeMessageHelper(eMailMessage, true, "UTF-8");
+//            helper.setSubject(eMailMessage.getSubject());
+//            String sbj = MimeUtility.encodeWord(eMailMessage.getSubject());
+//            Enumeration en = eMailMessage.getAllHeaders();
             sb.append("From: ").append(EmailUtils
-                    .getDecodedStr(eMailMessage.getHeader("From", null) + "\n"));        
+                    .getDecodedStr(eMailMessage.getHeader("From", null) + "\n")); 
+            String subj = eMailMessage.getSubject();            
             sb.append("Subject: ").append(EmailUtils
-                    .chechFileNameCoding(eMailMessage.getHeader("Subject", null)))
+                    .chechFileNameCoding(eMailMessage.getSubject()))
                     .append("\n");
         } catch(IOException e) {}
         sb.append("Sent date: ")
@@ -160,7 +186,12 @@ public class EmailService {
     }
     
     public static String getDirectoryNameFromMessage(javax.mail.Message message) throws MessagingException {
-        String emailSubject = message.getSubject();
+        String emailSubject = "";
+        try {
+            emailSubject = EmailUtils.chechFileNameCoding(message.getSubject());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         String emailFrom = ((InternetAddress)(message.getFrom()[0])).getAddress();
         Date emailSentDate = message.getSentDate(); 
         String directoryName = StringUtils.dateFormat(emailSentDate) + " - " +

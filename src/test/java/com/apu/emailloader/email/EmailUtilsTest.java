@@ -5,6 +5,7 @@
  */
 package com.apu.emailloader.email;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.After;
@@ -79,9 +80,10 @@ public class EmailUtilsTest {
 
     /**
      * Test of getDecodedStr method, of class EmailUtils.
+     * @throws UnsupportedEncodingException 
      */
     @Test
-    public void testGetDecodedStr() {
+    public void testGetDecodedStr() throws UnsupportedEncodingException {
         System.out.println("getDecodedStr");
         String str = "=?koi8-r?B?9MXT1M/X2cogz9TQ0sHXydTFzNg=?= <test@mail.com.ua>";
         String expResult = "Тестовый отправитель <test@mail.com.ua>";
