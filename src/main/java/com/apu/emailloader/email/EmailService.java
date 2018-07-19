@@ -155,10 +155,6 @@ public class EmailService {
     private EmailFragment fillHeaderFile(MimeMessage eMailMessage) throws MessagingException, UnsupportedEncodingException {
         StringBuilder sb = new StringBuilder();
         try {
-//            MimeMessageHelper helper = new MimeMessageHelper(eMailMessage, true, "UTF-8");
-//            helper.setSubject(eMailMessage.getSubject());
-//            String sbj = MimeUtility.encodeWord(eMailMessage.getSubject());
-//            Enumeration en = eMailMessage.getAllHeaders();
             sb.append("From: ").append(EmailUtils
                     .getDecodedStr(eMailMessage.getHeader("From", null) + "\n")); 
             String subj = eMailMessage.getSubject();            
