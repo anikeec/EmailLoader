@@ -121,6 +121,15 @@ public class EmailUtilsTest {
         assertTrue(result.startPosition == 0);
         assertTrue(result.endPosition == 41);
         
+        str = "=?utf-8?q?Prom=2Eua?= <support@prom.ua>";
+        startStr = "=?";
+        endStr = "?=";
+        expResult = null;
+        result = EmailUtils.getNextEncodedPart(str, startStr, endStr);
+        assertEquals(result.str, "utf-8?q?Prom=2Eua");
+        assertTrue(result.startPosition == 0);
+        assertTrue(result.endPosition == 21);
+        
         try {
             EmailUtils.getNextEncodedPart(null, "", "");
             Assert.fail("Must be NullPointerException");
@@ -147,8 +156,14 @@ public class EmailUtilsTest {
         String expResult = "Присоединяйтесь к вебинару";
         String result = EmailUtils.decodePart(str);
         assertEquals(expResult, result);
+        
         str = "koi8-r?B?9MXT1M/X2cogz9TQ0sHXydTFzNg=";
         expResult = "Тестовый отправитель";
+        result = EmailUtils.decodePart(str);
+        assertEquals(expResult, result);
+        
+        str = "utf-8?q?Prom=2Eua";
+        expResult = "Prom=2Eua";
         result = EmailUtils.decodePart(str);
         assertEquals(expResult, result);
         
